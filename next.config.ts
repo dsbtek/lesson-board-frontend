@@ -1,14 +1,34 @@
-// next.config.ts
-import withPWA from 'next-pwa';
+import pwa from 'next-pwa';
+import type { NextConfig } from 'next';
 
-const nextConfig = {
+// Call pwa() to get the actual plugin function
+const withPWA = pwa({
+    dest: 'public',
+    register: true,
+    skipWaiting: true,
+    disable: process.env.NODE_ENV === 'development',
+    exclude: [/\.map$/, /manifest\.json$/],
+});
+
+const baseConfig: NextConfig = {
     reactStrictMode: true,
-    pwa: {
-        dest: 'public',
-        register: true,
-        skipWaiting: true,
-        disable: process.env.NODE_ENV === 'development',
+    experimental: {
+        optimizeCss: true,
+        scrollRestoration: true,
+    },
+    images: {
+        domains: ['example.com'],
+        formats: ['image/avif', 'image/webp'],
+    },
+    webpack: (config: any) => {
+        config.experiments = {
+            asyncWebAssembly: true,
+            syncWebAssembly: true,
+            topLevelAwait: true,
+            layers: true,
+        };
+        return config;
     },
 };
 
-export default nextConfig;
+export default withPWA(baseConfig); // ✅ This now returns the final config object
